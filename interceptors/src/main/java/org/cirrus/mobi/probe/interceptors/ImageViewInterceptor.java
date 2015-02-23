@@ -22,15 +22,18 @@ import org.lucasr.probe.Interceptor;
  */
 public class ImageViewInterceptor extends Interceptor {
 
-    private final Paint mTextPaint;
+    public static final int ALPHA_TINT = 150;
+    private final Paint mTallTextPaint;
 
     private final Paint mRectPaint;
-    private final int mTextSize;
+    private final int mTallTextSize;
 
     private static final int COLOR_NO_SCALE = 0xFF2AFF80;
     private static final int COLOR_SCALE_UP = 0xFFEDFF2A;
     private static final int COLOR_SCALE_DOWN = 0xFFFFAAAA;
     private final Paint mTintPaint;
+    private final int mSmallTextSize;
+    private final Paint mSmallTextPaint;
 
     private boolean printPixelSize;
     private boolean printSourceSize;
@@ -39,11 +42,16 @@ public class ImageViewInterceptor extends Interceptor {
     private ImageViewInterceptor(Context context, boolean printPixelSize, boolean printSourceSize) {
         final float density = context.getResources().getDisplayMetrics().density;
 
-        mTextSize = (int) (density * 8);
-        mTextPaint = new Paint();
-        mTextPaint.setTextSize(mTextSize);
-        mTextPaint.setAntiAlias(true);
-        mTextPaint.setFakeBoldText(true);
+        mTallTextSize = (int) (density * 8);
+        mTallTextPaint = new Paint();
+        mTallTextPaint.setTextSize(mTallTextSize);
+        mTallTextPaint.setAntiAlias(true);
+        mTallTextPaint.setFakeBoldText(true);
+
+        mSmallTextSize = (int) (density * 5);
+        mSmallTextPaint = new Paint();
+        mSmallTextPaint.setTextSize(mSmallTextSize);
+        mSmallTextPaint.setAntiAlias(true);
 
         mTintPaint = new Paint();
 
@@ -61,8 +69,8 @@ public class ImageViewInterceptor extends Interceptor {
         super.draw(view, canvas);
         if(view instanceof ImageView)
         {
-            ImageView imageView = (ImageView) view;
-            Matrix drawMatrix = imageView.getImageMatrix();
+            final ImageView imageView = (ImageView) view;
+            final Matrix drawMatrix = imageView.getImageMatrix();
 
             int color;
             float scale;
@@ -72,11 +80,11 @@ public class ImageViewInterceptor extends Interceptor {
                 scale = 1.0f;
             }
             else {
-                float[]values = new float[9];
+                final float[]values = new float[9];
                 drawMatrix.getValues(values);
-                float scaleX = values[0];
-                float scaleY = values[4];
-                float scaleMin = Math.min(scaleX, scaleY);
+                final float scaleX = values[0];
+                final float scaleY = values[4];
+                final float scaleMin = Math.min(scaleX, scaleY);
 
                 color = COLOR_NO_SCALE;
 
@@ -88,7 +96,7 @@ public class ImageViewInterceptor extends Interceptor {
                 scale = scaleMin;
             }
 
-            final int tintColor = Color.argb(150, Color.red(color), Color.green(color),
+            final int tintColor = Color.argb(ALPHA_TINT, Color.red(color), Color.green(color),
                     Color.blue(color));
             mTintPaint.setColor(tintColor);
 
@@ -97,16 +105,23 @@ public class ImageViewInterceptor extends Interceptor {
             final int width = view.getWidth();
             final int height = view.getHeight();
 
-            int factor = Math.max(1, ((height / mTextSize) / 2));
+            int factor = Math.max(1, ((height / mTallTextSize) / 2));
             factor = Math.min(4, factor);
 
-            mTextPaint.setTextSize(mTextSize * factor);
+            mTallTextPaint.setTextSize(mTallTextSize * factor);
+            mSmallTextPaint.setTextSize(mSmallTextSize * factor);
 
             final String text = String.valueOf(Math.round(scale * 100.0) / 100.0);
-            int textWidth = (int) mTextPaint.measureText(text);
-//                canvas.drawRect(width/2 - textWidth/2, height/2 - mTextSize - (mPadding), textWidth + (mPadding*2), height, mRectPaint);
-            canvas.drawText(text, width/2 - textWidth/2, height/2 + mTextPaint.getTextSize()/2 ,mTextPaint);
+            int textWidth = (int) mTallTextPaint.measureText(text);
+//                canvas.drawRect(width/2 - textWidth/2, height/2 - mTextSiz - (mPadding), textWidth + (mPadding*2), height, mRectPaint);
+            canvas.drawText(text, width / 2 - textWidth / 2, height / 2 + mTallTextPaint.getTextSize() / 2, mTallTextPaint);
 
+            if(printSourceSize) {
+                canvas.drawText(imageView.getDrawable().getIntrinsicHeight()+" x "+imageView.getDrawable().getIntrinsicWidth(), 0, height, mSmallTextPaint);
+            }
+            if(printPixelSize) {
+                canvas.drawText(imageView.getHeight()+" x "+imageView.getWidth(), 0, mSmallTextPaint.getTextSize(), mSmallTextPaint);
+            }
         }
 
     }

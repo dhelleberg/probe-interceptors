@@ -11,7 +11,10 @@ public class ImageViewInterceptorActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Probe.deploy(this, new ImageViewInterceptor.Builder(this).build());
+        Probe.deploy(this, new ImageViewInterceptor.Builder(this)
+                .printSourceSize(true)
+                .printPixelSize(true)
+                .build());
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_view_interceptor);
