@@ -11,7 +11,7 @@ public class ImageViewInterceptorActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Probe.deploy(this, new ImageViewInterceptor(this));
+        Probe.deploy(this, new ImageViewInterceptor.Builder(this).build());
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_view_interceptor);

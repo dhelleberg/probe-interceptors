@@ -32,8 +32,11 @@ public class ImageViewInterceptor extends Interceptor {
     private static final int COLOR_SCALE_DOWN = 0xFFFFAAAA;
     private final Paint mTintPaint;
 
+    private boolean printPixelSize;
+    private boolean printSourceSize;
 
-    public ImageViewInterceptor(Context context) {
+
+    private ImageViewInterceptor(Context context, boolean printPixelSize, boolean printSourceSize) {
         final float density = context.getResources().getDisplayMetrics().density;
 
         mTextSize = (int) (density * 8);
@@ -47,7 +50,10 @@ public class ImageViewInterceptor extends Interceptor {
         mRectPaint = new Paint();
         mRectPaint.setColor(0xFFFFFFFF);
 
+        this.printPixelSize = printPixelSize;
+        this.printSourceSize = printSourceSize;
     }
+
 
 
     @Override
@@ -105,4 +111,32 @@ public class ImageViewInterceptor extends Interceptor {
 
     }
 
+    public static class Builder {
+
+        private final Context context;
+        private boolean printPixelSize = false;
+        private boolean printSourceSize = false;
+
+        public Builder(Context context) {
+            if (context == null) {
+                throw new IllegalArgumentException("Context cannot be null.");
+            }
+            this.context = context.getApplicationContext();
+        }
+
+        public Builder printPixelSize(boolean printPixelSize) {
+            this.printPixelSize = printPixelSize;
+            return this;
+        }
+
+        public Builder printSourceSize(boolean printSourceSize) {
+            this.printSourceSize = printSourceSize;
+            return this;
+        }
+
+        public ImageViewInterceptor build() {
+            return new ImageViewInterceptor(context, printPixelSize, printSourceSize);
+        }
+
+    }
 }
